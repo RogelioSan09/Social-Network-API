@@ -1,6 +1,6 @@
 // Initialize the models
 const User = require('./User');
-const Reaction = require('./Reaction');
+const Thought = require('./Thought');
 
 // Export the models
-module.exports = { User, Reaction };
+module.exports = { User, Thought };
