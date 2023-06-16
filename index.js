@@ -9,7 +9,7 @@ const routes = require('./routes');
 const cwd = process.cwd();
 
 // Set up port and initialize the app
-const PORT = process.env.port || 3001;
+const PORT = process.env.PORT || 3001;
 const app = express();
 
 // Get the activity name from the current working directory

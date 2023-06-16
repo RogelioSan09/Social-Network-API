@@ -48,7 +48,7 @@ const userSchema = new Schema(
         },
         // Set the `id` as false, this allows the virtuals to be used in the data returned
         // The id of the user is not needed since the _id is already defined
-        id: false
+        id: false,
     }
 );
 

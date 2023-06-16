@@ -30,15 +30,11 @@ module.exports = {
                 path: 'friends',
                 select: '-__v'
             })
-            .then( user => 
+            .then((user) => 
                 // If no user is found, send 404
                 !user 
                     ? res.status(404).json({ message: 'No user found with this id!' })
-                    : res.json({
-                        user,
-                        thoughts: thoughts(req.params.userId),
-                        friends: friends(req.params.userId),
-                    })
+                    : res.json(user)
             )
             .catch((err) => {
                 console.log(err);
@@ -52,17 +48,15 @@ module.exports = {
             .catch((err) => res.sendStatus(500).json(err));
     },
     // update user by id
-    updateUser( req, res) {
+    updateUser(req, res) {
         User.findOneAndUpdate(
             { _id: req.params.userId },
             { $set: req.body },
-            { new: true, runValidators: true }
+            { runValidators: true, new: true }
         )
-        .then((user) => 
-            !user 
-                ? res
-                    .status(404)
-                    .json({ message: 'No user found with this id!' }) 
+        .then((user) =>
+            !user
+                ? res.status(404).json({ message: 'No user found with this id!' })
                 : res.json(user)
         )
         .catch((err) => res.status(500).json(err));
@@ -74,9 +68,9 @@ module.exports = {
                 !user 
                     ? res.status(404).json({ message: 'No user exists!' })
                     : Thought.deleteMany(
-                        { user: req.params.userId },
+                        { user: req.params.userId }, // delete all thoughts associated with the user
                         { $pull : { thoughts: req.params.userId }},
-                        { new: true, },
+                        { new: true },
                     )
             )
             .then(() => res.json({ message: 'User deleted!' }))
