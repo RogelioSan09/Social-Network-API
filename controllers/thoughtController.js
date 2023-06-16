@@ -114,10 +114,11 @@ module.exports = {
 
     // remove reaction
     removeReaction(req, res) {
-        console.log('Removing a reaction');
-        Thought.deleteMany(
+        console.log('Removing all reactions associated with thoughtId');
+        Thought.findOneAndUpdate(
             { _id: req.params.thoughtId },
-            { $pull: { reactions: req.params.thoughtId } }, // remove the reaction to the thought's `reactions` array field
+            // remove the reaction to the thought's `reactions` array field
+            { $pull: { reactions: {} } },
             { new: true}
         )
         .then((thought) =>
