@@ -109,13 +109,15 @@ module.exports = {
         .catch((err) => res.json(err));
     },
     // remove reaction
-    removeReaction(req, res) {   // destructure params out of the request body
-        Thought.findOneAndUpdate(
-            {_id: req.params.thoughtId},
-            { $pull: { reactions: [] } }, // remove all reactions from the thought's `reactions` array field
-            { new: true, runValidators: true }
+    removeReaction(req, res) {
+        console.log('Removing a reaction');
+        Thought.deleteMany(
+            { _id: req.params.thoughtId },
+            { $pull: { reactions: req.params.thoughtId } }, // remove the reaction to the thought's `reactions` array field
+            { new: true}
         )
-        .then((thought) => 
+        .then((thought) =>
+            // If no thought is found, send 404
             !thought
                 ? res.status(404).json({ message: 'No thought found with this id!' })
                 : res.json(thought)
