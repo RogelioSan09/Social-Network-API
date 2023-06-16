@@ -78,29 +78,44 @@ module.exports = {
     },
 
     // add friend
+    // When testing in Insomnia Core, use the following JSON in the body of the POST request to add a friend to a user:
+    // {
+    //     "_Id": "5edff358a0fcb779aa7b118b"
+    // }
     addFriend(req, res) {
+        console.log('Adding a friend');
+        console.log(req.body);
         User.findOneAndUpdate(
             { _id: req.params.userId },
-            { $addToSet: { friends: req.params.friendId }},
-            { new: true }
+            { $addToSet: { friends: req.body }}, // add to set to prevent duplicates
+            { new: true, runValidators: true }
         )
         .then((user) =>
             !user
                 ? res.status(404).json({ message: 'No user found with this id!' })
                 : res.json(user)
         )
-        .catch((err) => res.status(500).json(err));
+        .catch((err) => res.json(err));
     },
+    
     removeFriend(req, res) {
-        User.findOneAndUpdate(
-            { _id: req.params.userId },
-            { $pull: { friends: req.params.friendId }},
-            { runValidators: true, new: true }
-        )
+        console.log('Removing a friend');
+        User.findOneAndDelete({ _id: req.params.friendId })
         .then((user) =>
             !user
                 ? res.status(404).json({ message: 'No user found with this id!' })
-                : res.json(user)
+                : User.findOneAndUpdate(
+                    { _id: req.params.userId },
+                    { $pull: { friends: req.params.friendId }}, // remove from set
+                    { new: true }
+                )
+        )
+        .then((user) =>
+            !user
+                ? res.status(404).json({ 
+                    message: 'No user found with this id!' 
+                })
+                : res.json({ message: 'Friend removed!' })
         )
         .catch((err) => res.status(500).json(err));
     },

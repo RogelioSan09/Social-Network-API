@@ -1,5 +1,4 @@
 const { Thought, User } = require('../models');
-const reactionSchema = require('../models/Reaction');
 
 module.exports = {
     // get all thoughts
@@ -16,6 +15,7 @@ module.exports = {
             }   
         );
     },
+
     // get one thought by id
     getThoughtById(req, res) {   // destructure params out of the request body
         Thought.findOne({ _id: req.params.thoughtId }) // find one thought by its _id
@@ -37,23 +37,24 @@ module.exports = {
 
     // create a new thought
     // destructure body out of the request body
-    createThought(req, res) {  
+    createThought(req, res) {
         Thought.create(req.body)
             .then((thought) => {
-                return User.findOneAndUpdate(
-                    { _id: req.params.userId },
-                    { $push: { thoughts: thought._id } },   // add the thought's _id to the user's `thoughts` array field
-                    { new: true, runValidators: true }
-                );
+                User.findOneAndUpdate(
+                    { username: req.body.username },
+                    { $push: { thoughts: thought._id } },
+                    { new: true }
+                )
+                .then((user) => {
+                    if (!user) {
+                        return res.status(404).json({ message: 'No user found with this username!' });
+                    }
+                    res.json(thought);
+                })
+                .catch((err) => res.status(500).json(err));
             })
-            .then((user) => 
-                // If no user is found, send 404
-                !user
-                    ? res.status(404).json({ message: 'No user found with this id!' })
-                    : res.json(user)
-        )
-        .catch((err) => res.json(err));
     },
+
     // update thought by id
     updateThought( req, res) {
         Thought.findOneAndUpdate(   // find one thought by its _id
@@ -69,6 +70,7 @@ module.exports = {
         )
         .catch((err) => res.status(500).json(err));
     },
+
     // delete thought
     deleteThought(req, res) {  
         Thought.findOneAndDelete({ _id: req.params.thoughtId })
@@ -80,17 +82,18 @@ module.exports = {
                         { $pull: { thoughts: req.params.thoughtId } }, // remove the thought from the user's `thoughts` array field  
                         { runValidators: true, new: true }
                     )    
-        )
-        .then((user) =>
+            )
+            .then((user) =>
             // If no user is found, send 404
             !user
                 ? res.status(404).json({ 
                     message: 'No user found with this id!',
                  })
                  : res.json({ message: 'Thought successfully deleted!' })
-        )
-        .catch((err) => res.json(err));
+            )
+            .catch((err) => res.json(err));
     },
+
     // add reaction
     addReaction(req, res) {
         console.log('Adding a reaction');
@@ -108,6 +111,7 @@ module.exports = {
         )
         .catch((err) => res.json(err));
     },
+
     // remove reaction
     removeReaction(req, res) {
         console.log('Removing a reaction');

@@ -12,7 +12,7 @@ const thoughtSchema = new Schema(
         //with the following constraints of required, minLength, and maxLength
         thoughtText: {
             type: String,
-            required: 'Thought text is required',
+            required: true,
             minLength: 1,
             maxLength: 280
         },
@@ -29,7 +29,7 @@ const thoughtSchema = new Schema(
         //with the following constraints of required
         username: {
             type: String,
-            required: 'Username is required'
+            required: true
         },
         //created a reactions field of type Array
         reactions: [reactionSchema],
